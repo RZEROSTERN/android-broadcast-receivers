@@ -14,9 +14,8 @@ class CheckConnectivity: BroadcastReceiver() {
             String.format("Connection status: %b", isOnline(context).toString()))
     }
 
-    private fun isOnline(context: Context?): Boolean {
-        val cm = context!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val netInfo = cm.activeNetworkInfo
-        return netInfo != null && netInfo.state == NetworkInfo.State.CONNECTED
+    private fun isOnline(context: Context?): Boolean? {
+        return (context!!.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager)?.activeNetworkInfo?.isConnected
     }
 }
