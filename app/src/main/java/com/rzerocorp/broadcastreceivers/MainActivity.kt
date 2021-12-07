@@ -16,21 +16,37 @@ import android.net.ConnectivityManager
 import android.content.IntentFilter
 
 import android.os.Build
-
-
+import android.widget.Toast
+import androidx.activity.viewModels
+import com.rzerocorp.broadcastreceivers.viewmodels.ConnectionLiveData
+import com.rzerocorp.broadcastreceivers.viewmodels.MainViewModel
+import com.rzerocorp.broadcastreceivers.viewmodels.isConnected
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var checkConnectivity: CheckConnectivity
+    protected lateinit var connectionLiveData: ConnectionLiveData
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        checkConnectivity = CheckConnectivity()
-        registerNetworkBroadcastForNougat()
+        connectionLiveData = ConnectionLiveData(this)
+
+        connectionLiveData.observe(this) {
+            viewModel.isNetworkAvailable.postValue(it)
+        }
+
+        viewModel.isNetworkAvailable.observe(this, {
+            when(it) {
+                false -> Toast.makeText(this, "Hey! Give me some Internet, please !!!!",
+                        Toast.LENGTH_LONG).show()
+                true -> Toast.makeText(this, "Thank you for the Internet!",
+                    Toast.LENGTH_LONG).show()
+            }
+        })
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -40,60 +56,9 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
-    }
-
-    private fun registerNetworkBroadcastForNougat() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerReceiver(
-                checkConnectivity,
-                IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-            )
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            registerReceiver(
-                checkConnectivity,
-                IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-            )
-        }
-    }
-
-    private fun unregisterNetworkChanges() {
-        try {
-            unregisterReceiver(checkConnectivity)
-        } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterNetworkChanges()
     }
 }
