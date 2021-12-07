@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.ConnectivityManager.*
 import android.util.Log
 import androidx.lifecycle.LiveData
 
@@ -21,7 +22,7 @@ class ConnectionLiveData(private val context: Context): LiveData<Boolean>()  {
         super.onActive()
         context.registerReceiver(
             networkReceiver,
-            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+            IntentFilter(CONNECTIVITY_ACTION)
         )
     }
 

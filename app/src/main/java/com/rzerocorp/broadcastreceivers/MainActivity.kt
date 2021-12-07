@@ -25,7 +25,6 @@ import com.rzerocorp.broadcastreceivers.viewmodels.isConnected
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     protected lateinit var connectionLiveData: ConnectionLiveData
     private val viewModel: MainViewModel by viewModels()
@@ -52,10 +51,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
     override fun onDestroy() {
